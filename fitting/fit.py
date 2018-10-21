@@ -1,6 +1,22 @@
 import numpy as np 
 from numpy.linalg import inv
 
+#k nearest neighbours
+def knn(x,y,k) :
+	def g(u) :
+		N = x.size
+		i0 = np.argmax((x>=u))
+		A = i0-k//2
+		B = i0+k-k//2
+		if A<0 or u<x[0] :
+			A=0
+			B=k
+		if B>N or u>x[N-1] :
+			A=N-k
+			B=N
+
+		return np.sum(y[A:B])/k
+	return g
 
 #square error
 def error(x,y,g) :
