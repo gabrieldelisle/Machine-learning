@@ -1,7 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 from random import random 
-from fit import polynomialFit, error
+from statFit import polynomialFit, error
 
 #Generating data with noise
 f = lambda u: 2*np.log(u+2)

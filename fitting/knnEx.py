@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from fit import knn
+from statFit import knn
 
 f = lambda x: np.sin(x)
 
