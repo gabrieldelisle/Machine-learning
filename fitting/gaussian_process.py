@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt 
 from numpy.linalg import inv
 
 
@@ -9,6 +8,9 @@ def rbf_kernel(x,y) :
 	return np.exp(-(x-y)**2/2/sigma**2)
 
 class GaussianProcessClassifier(object):
+	# gaussian processes are infinite set of gaussian random variables
+	# we set their covariance with a kernel matrix, such as two close points have a low covariance 
+	# while two distant points have a low correlation
 	def __init__(self, x, t, kernel=rbf_kernel):
 		self.kernel = kernel
 		self.x = x
@@ -37,12 +39,8 @@ class GaussianProcessClassifier(object):
 		return np.random.multivariate_normal(mu, K)
 		
 
-
-
 if __name__ == '__main__':
-
-
-
+	import matplotlib.pyplot as plt 
 
 	#generate data
 	def f(xi) :
@@ -56,7 +54,6 @@ if __name__ == '__main__':
 	x = x[indices]
 	t = t[indices]
 
-
 	#noisy kernel
 	sigma_f = 10
 	l = 1
@@ -68,12 +65,10 @@ if __name__ == '__main__':
 	#create gau
 	GP = GaussianProcessClassifier(x,t, kernel = noisy_rbf)
 
+	#new data 
 	x_test = np.linspace(-5,7,200)
 
-
-
 	# plot without noice
-
 	mean = GP.mean(x_test)
 	deviation = GP.deviation(x_test)
 	plt.plot(x_test,mean,'r')
