@@ -57,10 +57,10 @@ if __name__ == '__main__':
 	#noisy kernel
 	sigma_f = 10
 	l = 1
-	noice = 0
+	noise = 0
 	def noisy_rbf(xi,xj) :
 		u = xi-xj
-		return sigma_f * np.exp(- u**2 / l**2 ) + (u==0)*noice
+		return sigma_f * np.exp(- u**2 / l**2 ) + (u==0)*noise
 
 	#create gau
 	GP = GaussianProcessClassifier(x,t, kernel = noisy_rbf)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 	#new data 
 	x_test = np.linspace(-5,7,200)
 
-	# plot without noice
+	# plot without noise
 	mean = GP.mean(x_test)
 	deviation = GP.deviation(x_test)
 	plt.plot(x_test,mean,'r')
@@ -81,8 +81,8 @@ if __name__ == '__main__':
 	plt.ylabel('t')
 	plt.show()
 
-	# plot with noice
-	noice=3.5
+	# plot with noise
+	noise=3.5
 
 	mean = GP.mean(x_test)
 	deviation = GP.deviation(x_test)
