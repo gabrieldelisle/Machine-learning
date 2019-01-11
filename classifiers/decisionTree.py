@@ -1,17 +1,17 @@
 import numpy as np
-from numpy.random import shuffle, normal, random
-import matplotlib.pyplot as plt
-
 
 # entropy is used to measure the information we have on the data set
-def entropy(S) :
-	N = len(S)
+def entropy(S, w = None) :
+	if type(w) != np.array :
+		w = np.ones(len(S))
+	N = np.sum(w)
+
 	classes = {}
-	for u in S :
+	for i,u in enumerate(S) :
 		if u in classes :
-			classes[u]+=1
+			classes[u]+=w[i]
 		else :
-			classes[u]=1
+			classes[u]=w[i]
 	return -sum(p/N*np.log(p/N) for p in classes.values())
 
 
@@ -22,7 +22,7 @@ def gain(data, target, feature, treshold) :
 
 
 # choose the tuple feature treshold which minimize entropy
-def choose_feature(data, target) :
+def choose_feature(data, target, w = None) :
 	best_E = entropy(target)
 	best_feature = None
 	best_treshold = None
@@ -31,7 +31,7 @@ def choose_feature(data, target) :
 			S1 = target[data[:,feature] <= treshold]
 			S2 = target[data[:,feature] > treshold]
 			# entropy of separated subsets
-			E = ( len(S1)*entropy(S1) + len(S2)*entropy(S2) ) /len(target)
+			E = ( len(S1)*entropy(S1, w) + len(S2)*entropy(S2, w) ) /len(target)
 			if E<best_E :
 				best_E = E
 				best_feature = feature
@@ -53,7 +53,7 @@ def major(S) :
 class DecisionTree() :
 	# decision trees are efficient to separate data with many features
 
-	def __init__(self, max_depth = float('inf')) :
+	def __init__(self, max_depth = float('inf'), n_treshold = 10) :
 		self.feature = {}
 		self.treshold = {}
 		self.major = {"": None}
@@ -69,14 +69,14 @@ class DecisionTree() :
 		tree.leaves = self.leaves.copy()
 		return tree
 
-	def train(self, data, target) :
+	def train(self, data, target, w = None) :
 		pile = [(data, target, 0, self.root)]
 		while pile :
 			d, t, depth, way = pile.pop()
 			self.major[way] = major(t)
 
 			if depth < self.max_depth and entropy(t)>0 :
-				feature, treshold = choose_feature(d, t)
+				feature, treshold = choose_feature(d, t, w)
 				# use best feature and treshold to separate the data at each node of the tree
 				if feature :
 					self.feature[way] = feature
@@ -92,7 +92,7 @@ class DecisionTree() :
 					pile.append((d[choice2], t[choice2], depth+1, way+'2'))
 
 
-	def classify(self, point) :
+	def classify_point(self, point) :
 		way = self.root
 		# follow every test until the end
 		while way in self.feature :
@@ -103,9 +103,11 @@ class DecisionTree() :
 		# return the most probable class knowing the tests
 		return self.major[way]
 
+	def classify(self, data) :
+		return np.array([self.classify_point(point) for point in data])
 
 	def error(self, data, target) :
-		predict = np.array([self.classify(u) for u in data])
+		predict = self.classify(data)
 		return 1-np.mean(predict == target)
 
 
@@ -141,6 +143,7 @@ class DecisionTree() :
 			
 
 if __name__ == '__main__':
+	from numpy.random import shuffle, normal, random
 
 	# generate dataset
 	N=400
