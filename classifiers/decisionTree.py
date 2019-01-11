@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import permutation
 
 # entropy is used to measure the information we have on the data set
 def entropy(S, w = None) :
@@ -21,13 +22,14 @@ def gain(data, target, feature, treshold) :
 	return entropy(target) - ( len(S1)*entropy(S1) + len(S2)*entropy(S2) ) /len(target)
 
 
-# choose the tuple feature treshold which minimize entropy
-def choose_feature(data, target, w = None) :
+# choose the tuple (feature, treshold) which minimize entropy
+def choose_feature(data, target, n_treshold, w = None) :
 	best_E = entropy(target)
 	best_feature = None
 	best_treshold = None
 	for feature in range(data.shape[1]) :
-		for treshold in data[:-1,feature] :
+		values = data[:-1,feature].copy()
+		for treshold in permutation(values)[:n_treshold] :
 			S1 = target[data[:,feature] <= treshold]
 			S2 = target[data[:,feature] > treshold]
 			# entropy of separated subsets
@@ -60,6 +62,7 @@ class DecisionTree() :
 		self.leaves = {}
 		self.root = "" #the different choices will be stored in a string
 		self.max_depth = max_depth
+		self.n_treshold = n_treshold
 
 	def copy(self) :
 		tree = DecisionTree(max_depth = self.max_depth)
@@ -76,7 +79,7 @@ class DecisionTree() :
 			self.major[way] = major(t)
 
 			if depth < self.max_depth and entropy(t)>0 :
-				feature, treshold = choose_feature(d, t, w)
+				feature, treshold = choose_feature(d, t, self.n_treshold, w)
 				# use best feature and treshold to separate the data at each node of the tree
 				if feature :
 					self.feature[way] = feature
